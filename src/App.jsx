@@ -257,6 +257,7 @@ import EmployeeLeavesPage from "./pages/EmployeeLeavesPage";
 import LeaveTypePage from "./pages/LeaveTypePage";
 import DeductionPage from "./pages/DeductionPage";
 import PrivateRoute from "./components/PrivateRoute";
+import DeviceSettingsPage from "./pages/DeviceSettingsPage";
 
 function App() {
   return (
@@ -381,6 +382,14 @@ function App() {
           element={
             <PrivateRoute>
               <AttendanceOverviewPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/admin/device-settings"
+          element={
+            <PrivateRoute>
+              <DeviceSettingsPage />
             </PrivateRoute>
           }
         />
