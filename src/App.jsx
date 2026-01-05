@@ -258,6 +258,11 @@ import LeaveTypePage from "./pages/LeaveTypePage";
 import DeductionPage from "./pages/DeductionPage";
 import PrivateRoute from "./components/PrivateRoute";
 import DeviceSettingsPage from "./pages/DeviceSettingsPage";
+import ReportsPage from "./pages/ReportsPage";
+import EmployeesReportPage from "./pages/EmployeesReportPage";
+import AttendanceReportPage from "./pages/AttendanceReportPage";
+import SalaryReportPage from "./pages/SalaryReportPage";
+import DeductionsReportPage from "./pages/DeductionsReportPage";
 
 function App() {
   return (
@@ -414,6 +419,46 @@ function App() {
           element={
             <PrivateRoute>
               <DeductionPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/admin/reports"
+          element={
+            <PrivateRoute>
+              <ReportsPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/admin/reports/employees"
+          element={
+            <PrivateRoute>
+              <EmployeesReportPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/admin/reports/attendance"
+          element={
+            <PrivateRoute>
+              <AttendanceReportPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/admin/reports/salary"
+          element={
+            <PrivateRoute>
+              <SalaryReportPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/admin/reports/deductions"
+          element={
+            <PrivateRoute>
+              <DeductionsReportPage />
             </PrivateRoute>
           }
         />

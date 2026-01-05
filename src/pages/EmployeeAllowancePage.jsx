@@ -16,7 +16,7 @@ export default function EmployeeAllowancePage() {
       try {
         const res = await axiosInstance.get("/api/employees/employee-allowances/");
         setEmployees(res.data);
-      } catch (error) {
+      } catch {
         toast.error("Failed to load employees");
       }
     };

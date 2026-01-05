@@ -46,7 +46,7 @@ axiosInstance.interceptors.response.use(
         // Retry original request with new token
         originalRequest.headers["Authorization"] = `Bearer ${newAccess}`;
         return axiosInstance(originalRequest);
-      } catch (err) {
+      } catch {
         console.error("Refresh token expired. Logging out...");
         localStorage.removeItem("access");
         localStorage.removeItem("refresh");

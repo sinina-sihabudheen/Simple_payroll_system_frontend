@@ -15,6 +15,7 @@ const Sidebar = () => {
     { label: "Salaries", path: "/admin/salaries" },
     { label: "Attendance Overview", path: "/admin/attendance-overview" },
     { label: "Device Settings", path: "/admin/device-settings" },
+    { label: "Reports", path: "/admin/reports" },
     // { label: "Employee Allowances", path: "/admin/employees-allowances" },
     { label: "Employee Deductions", path: "/admin/employees-deductions" },
     { label: "Employee Leaves", path: "/admin/employees-leaves" },

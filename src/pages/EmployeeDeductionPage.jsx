@@ -31,7 +31,7 @@ export default function EmployeeDeductionPage() {
     try {
       const res = await axiosInstance.get("/api/employees/employee-deductions/");
       setDeductions(res.data);
-    } catch (error) {
+    } catch {
       toast.error("Failed to load deductions");
     }
   };
@@ -40,7 +40,7 @@ export default function EmployeeDeductionPage() {
     try {
       const res = await axiosInstance.get("/api/employees/profiles/");
       setEmployees(res.data);
-    } catch (error) {
+    } catch {
       toast.error("Failed to load employees");
     }
   };
@@ -49,7 +49,7 @@ export default function EmployeeDeductionPage() {
     try {
       const res = await axiosInstance.get("/api/salary/deductions/");
       setDeductionTypes(res.data);
-    } catch (error) {
+    } catch {
       toast.error("Failed to load deduction types");
     }
   };
@@ -111,7 +111,7 @@ export default function EmployeeDeductionPage() {
       await axiosInstance.delete(`/api/employees/employee-deductions/${id}/`);
       toast.success("Deduction deleted successfully");
       fetchDeductions();
-    } catch (error) {
+    } catch {
       toast.error("Failed to delete deduction");
     }
   };
