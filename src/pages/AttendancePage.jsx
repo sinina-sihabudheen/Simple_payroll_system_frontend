@@ -8,6 +8,8 @@ export default function AttendancePage() {
   const [attendance, setAttendance] = useState([]);
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncSummary, setSyncSummary] = useState(null);
+  const [presentEditingId, setPresentEditingId] = useState(null);
+  const [editTimes, setEditTimes] = useState({});
 
   const fetchAttendance = async () => {
     try {
@@ -29,7 +31,7 @@ export default function AttendancePage() {
 
   const markAbsent = async (record) => {
     try {
-      await axiosInstance.post("/api/attendance/", {
+      await axiosInstance.post("/api/attendance/mark-attendance/", {
         employee: record.employee,
         date: record.date,
         in_time: null,
@@ -39,9 +41,55 @@ export default function AttendancePage() {
       });
       toast.success("Marked as Absent");
       fetchAttendance(); // refresh the list
-    } catch (error) {
+    } catch {
       toast.error("Failed to mark absent");
     }
+  };
+
+  const startPresent = (record) => {
+    const key = `${record.employee}-${record.date}`;
+    setPresentEditingId(key);
+    setEditTimes((prev) => ({
+      ...prev,
+      [key]: {
+        inTime: prev[key]?.inTime || "",
+        outTime: prev[key]?.outTime || "",
+      },
+    }));
+  };
+
+  const updateEditTime = (key, field, value) => {
+    setEditTimes((prev) => ({
+      ...prev,
+      [key]: { ...(prev[key] || {}), [field]: value },
+    }));
+  };
+
+  const savePresent = async (record) => {
+    const key = `${record.employee}-${record.date}`;
+    const times = editTimes[key] || { inTime: "", outTime: "" };
+    if (!times.inTime) {
+      toast.error("In time is required");
+      return;
+    }
+    try {
+      await axiosInstance.post("/api/attendance/mark-attendance/", {
+        employee: record.employee,
+        date: record.date,
+        in_time: times.inTime,
+        out_time: times.outTime || null,
+        is_present: true,
+      });
+      toast.success("Marked as Present");
+      setPresentEditingId(null);
+      fetchAttendance();
+    } catch {
+      toast.error("Failed to mark present");
+    }
+  };
+
+  const cancelPresent = () => {
+    setPresentEditingId(null);
   };
 
   const syncAttendance = async () => {
@@ -115,15 +163,56 @@ export default function AttendancePage() {
             <tbody>
               {attendance.map((att) => (
                 <tr key={`${att.employee}-${att.date}`} className="text-center">
-                  <td className="p-2 border">{att.employee}</td>
+                  <td className="p-2 border">{att.employee_name}</td>
                   <td className="p-2 border">{att.date}</td>
                   <td className="p-2 border">
-                    <button
-                      onClick={() => markAbsent(att)}
-                      className="bg-red-500 text-white px-3 py-1 rounded"
-                    >
-                      Mark Absent
-                    </button>
+                    {presentEditingId === `${att.employee}-${att.date}` ? (
+                      <div className="flex items-center justify-center gap-2">
+                        <input
+                          type="time"
+                          value={editTimes[`${att.employee}-${att.date}`]?.inTime || ""}
+                          onChange={(e) =>
+                            updateEditTime(`${att.employee}-${att.date}`, "inTime", e.target.value)
+                          }
+                          className="border border-gray-300 p-1 rounded w-28"
+                        />
+                        <input
+                          type="time"
+                          value={editTimes[`${att.employee}-${att.date}`]?.outTime || ""}
+                          onChange={(e) =>
+                            updateEditTime(`${att.employee}-${att.date}`, "outTime", e.target.value)
+                          }
+                          className="border border-gray-300 p-1 rounded w-28"
+                        />
+                        <button
+                          onClick={() => savePresent(att)}
+                          className="bg-blue-600 text-white px-3 py-1 rounded"
+                        >
+                          Save
+                        </button>
+                        <button
+                          onClick={cancelPresent}
+                          className="bg-gray-500 text-white px-3 py-1 rounded"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-center gap-2">
+                        <button
+                          onClick={() => startPresent(att)}
+                          className="bg-blue-600 text-white px-3 py-1 rounded"
+                        >
+                          Mark Present
+                        </button>
+                        <button
+                          onClick={() => markAbsent(att)}
+                          className="bg-red-600 text-white px-3 py-1 rounded"
+                        >
+                          Mark Absent
+                        </button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}

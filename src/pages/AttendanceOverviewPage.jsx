@@ -10,6 +10,7 @@ export default function AttendanceOverviewPage() {
     new Date().toISOString().slice(0, 10)
   );
   const [editingId, setEditingId] = useState(null);
+  const [presentEditingId, setPresentEditingId] = useState(null);
 
   const fetchRecords = async () => {
     try {
@@ -50,16 +51,8 @@ export default function AttendanceOverviewPage() {
   };
 
   const markPresent = async (employee_id, in_time, out_time) => {
-    const today = new Date().toISOString().slice(0, 10);
-    const isToday = selectedDate === today;
-
     if (!in_time) {
       toast.error("In time is required");
-      return;
-    }
-
-    if (!isToday && !out_time) {
-      toast.error("Out time is required for past dates");
       return;
     }
 
@@ -68,7 +61,7 @@ export default function AttendanceOverviewPage() {
         employee: employee_id,
         date: selectedDate,
         in_time,
-        out_time: isToday ? null : out_time,
+        out_time: out_time || null,
         is_present: true,
       });
       toast.success("Saved successfully");
@@ -114,8 +107,6 @@ export default function AttendanceOverviewPage() {
             <tbody>
               {records.map((rec) => {
                 const att = rec.attendance;
-                const isToday =
-                  selectedDate === new Date().toISOString().slice(0, 10);
 
                 const isEditing = editingId === rec.employee_id;
 
@@ -146,24 +137,22 @@ export default function AttendanceOverviewPage() {
                         att?.in_time || "-"
                       )}
                     </td>
-                    <td className="border px-4 py-2">
+                    <td className="border px-3 py-2">
                       {isEditing ? (
-                        !isToday && (
-                          <input
-                            type="time"
-                            value={rec.outTime}
-                            onChange={(e) =>
-                              setRecords((prev) =>
-                                prev.map((r) =>
-                                  r.employee_id === rec.employee_id
-                                    ? { ...r, outTime: e.target.value }
-                                    : r
-                                )
+                        <input
+                          type="time"
+                          value={rec.outTime}
+                          onChange={(e) =>
+                            setRecords((prev) =>
+                              prev.map((r) =>
+                                r.employee_id === rec.employee_id
+                                  ? { ...r, outTime: e.target.value }
+                                  : r
                               )
-                            }
-                            className="border border-blue-300 p-1 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-                          />
-                        )
+                            )
+                          }
+                          className="border border-blue-300 p-1 rounded focus:outline-none focus:ring-2 focus:ring-blue-400 w-28"
+                        />
                       ) : (
                         att?.out_time || "-"
                       )}
@@ -175,10 +164,10 @@ export default function AttendanceOverviewPage() {
                           : "❌ Absent"
                         : "Not Marked"}
                     </td>
-                    <td className="border px-4 py-2 space-y-2 text-center">
+                    <td className="border px-4 py-2 text-center">
                       {!att ? (
-                        <div className="flex flex-col gap-2">
-                          <div className="flex items-center gap-2">
+                        presentEditingId === rec.employee_id ? (
+                          <div className="flex items-center justify-center gap-2">
                             <input
                               type="time"
                               value={rec.inTime}
@@ -191,40 +180,53 @@ export default function AttendanceOverviewPage() {
                                   )
                                 )
                               }
-                              className="border border-blue-300 p-1 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+                              className="border border-blue-300 p-1 rounded focus:outline-none focus:ring-2 focus:ring-blue-400 w-24"
                             />
-                            {!isToday && (
-                              <input
-                                type="time"
-                                value={rec.outTime}
-                                onChange={(e) =>
-                                  setRecords((prev) =>
-                                    prev.map((r) =>
-                                      r.employee_id === rec.employee_id
-                                        ? { ...r, outTime: e.target.value }
-                                        : r
-                                    )
+                            <input
+                              type="time"
+                              value={rec.outTime}
+                              onChange={(e) =>
+                                setRecords((prev) =>
+                                  prev.map((r) =>
+                                    r.employee_id === rec.employee_id
+                                      ? { ...r, outTime: e.target.value }
+                                      : r
                                   )
-                                }
-                                className="border border-blue-300 p-1 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-                              />
-                            )}
+                                )
+                              }
+                              className="border border-blue-300 p-1 rounded focus:outline-none focus:ring-2 focus:ring-blue-400 w-24"
+                            />
                             <button
                               onClick={() =>
                                 markPresent(rec.employee_id, rec.inTime, rec.outTime)
                               }
-                              className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm"
+                              className="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-xs"
+                            >
+                              Save
+                            </button>
+                            <button
+                              onClick={() => setPresentEditingId(null)}
+                              className="bg-gray-400 hover:bg-gray-500 text-white px-2 py-1 rounded text-xs"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex gap-2 justify-center">
+                            <button
+                              onClick={() => setPresentEditingId(rec.employee_id)}
+                              className="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-xs"
                             >
                               Mark Present
                             </button>
+                            <button
+                              onClick={() => markAbsent(rec.employee_id)}
+                              className="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded text-xs"
+                            >
+                              Mark Absent
+                            </button>
                           </div>
-                          <button
-                            onClick={() => markAbsent(rec.employee_id)}
-                            className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm"
-                          >
-                            Mark Absent
-                          </button>
-                        </div>
+                        )
                       ) : isEditing ? (
                         <div className="flex gap-2 justify-center">
                           <button
@@ -237,13 +239,13 @@ export default function AttendanceOverviewPage() {
                           </button>
                           <button
                             onClick={() => markAbsent(rec.employee_id)}
-                            className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm"
+                            className="bg-red-300 hover:bg-red-500 text-white px-3 py-1 rounded text-sm"
                           >
                             Mark Absent
                           </button>
                           <button
                             onClick={() => setEditingId(null)}
-                            className="bg-gray-400 hover:bg-gray-500 text-white px-3 py-1 rounded text-sm"
+                            className="bg-gray-300 hover:bg-gray-500 text-white px-3 py-1 rounded text-sm"
                           >
                             Cancel
                           </button>
@@ -251,7 +253,7 @@ export default function AttendanceOverviewPage() {
                       ) : (
                         <button
                           onClick={() => setEditingId(rec.employee_id)}
-                          className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm"
+                          className="bg-blue-300 hover:bg-blue-500 text-white px-3 py-1 rounded text-sm"
                         >
                           Edit
                         </button>
@@ -268,4 +270,3 @@ export default function AttendanceOverviewPage() {
     </div>
   );
 }
-
